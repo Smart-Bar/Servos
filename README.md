@@ -22,36 +22,36 @@ Clone the repository and open the project on **_VS Code_** and add it via the ST
 
 ## Usage:
 
-The project is designed to control the servo motors using the **_USART2_** peripheral, which corresponds to the board's **_ST-Link_** port.
+The program is designed to control the servo motors using the terminal via **_USART2_** peripheral, which corresponds to the board's **_ST-Link_** port.
 
 To toggle the board's built-in LED:
 
     LED
 
-To control the servo motor the following commands are available:
+To control the servo motor, the following commands are available:
 
     PWM <duty_cycle>
     PWM -p <percentage>
 
-For example, to set the servo motor to a 90° position as a percentage:
+For example, to set the servo motor to a 90° position using a percentage:
 
     PWM -p 50
 
-Or to set the servo motor to a 45° position as a duty cycle:
+Alternatively, to set it to a 45° position using a duty cycle value:
 
     PWM 5
 
 Since the servo motor requires a pulse width between **_1ms and 2ms_** to work as expected, the duty cycle should be between **_5% and 10%_**.
 
-The implementation of the PWM set handles this by clamping the values to a range between 2.5 (0° or 1ms) and 12.5 (180° or 2ms). [Source](https://apmonitor.com/dde/index.php/Main/ServoControl#:~:text=The%20SG90%20servo%200°,(range%200-1023).)
+The implementation of the PWM handles this by clamping the values to a range between 2.5 (0° or 1ms) and 12.5 (180° or 2ms). [Source](https://apmonitor.com/dde/index.php/Main/ServoControl#:~:text=The%20SG90%20servo%200°,(range%200-1023).)
 
-This values can calculated using the following formula:
+This values can be calculated using the following formula:
 
 $$ CCR = ARR \cdot \frac{\text{Duty Cycle}}{100} $$
 
 Where **_CCR_** is the Capture/Compare Register and **_ARR_** is the Auto-Reload Register, the latter set to 255.
 
-Which derives from the following equation:
+Which derives from the equation:
 
 $$ \text{Pulse Width} = T \cdot \frac{\text{Duty Cycle}}{100} $$
 
