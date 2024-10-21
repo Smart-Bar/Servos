@@ -267,16 +267,20 @@ void Parse_Command(void) {
   // Reset the command vector index
   cmdVctrIdx = 0;
 
-  // Get the command action
+  // Get the action part
   char cmd[PARAM_LENGTH];
   strcpy(cmd, cmdVctr[0]);
 
   if (strcmp(cmd, "LED") == 0) {
     HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
   } else if (strcmp(cmd, "PWM") == 0) {
-    // Get the first parameter of the command
-    char param1[PARAM_LENGTH];
-    strcpy(param1, cmdVctr[1]);
+    // Get the ID of the actuator
+    char id[PARAM_LENGTH];
+    strcpy(id, cmdVctr[1]);
+
+    // Get the type of signal
+    char param[PARAM_LENGTH];
+    strcpy(param, cmdVctr[2]);
     float dutyCycle;
 
     // Check if the input is a percentage or a duty cycle value
