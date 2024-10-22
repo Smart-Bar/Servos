@@ -284,11 +284,11 @@ void Parse_Command(void) {
     float dutyCycle;
 
     // Check if the input is a percentage or a duty cycle value
-    if (strcmp(param1, "-p") == 0) {
-      dutyCycle = atof(cmdVctr[2]);
+    if (strcmp(param, "-p") == 0) {
+      dutyCycle = atof(cmdVctr[3]);
       dutyCycle = map(dutyCycle, 0, 100, DUTY_CYCLE_LOWER_BOUND, DUTY_CYCLE_UPPER_BOUND);
     } else {
-      dutyCycle = atof(param1);
+      dutyCycle = atof(param);
       dutyCycle = clamp(dutyCycle, DUTY_CYCLE_LOWER_BOUND, DUTY_CYCLE_UPPER_BOUND);
     }
 
