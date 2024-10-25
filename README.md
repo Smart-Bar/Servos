@@ -22,24 +22,24 @@ Clone the repository and open the project on **_VS Code_** and add it via the ST
 
 ## Usage:
 
-The program is designed to control the servo motors using the terminal via **_USART2_** peripheral, which corresponds to the board's **_ST-Link_** port.
+The program is designed to operate several servo motors connected to a demultiplexer and controlled by a single PWM signal, using the terminal via **_USART2_** peripheral, which corresponds to the board's **_ST-Link_** port. However, LEDs can be used for testing purposes as well.
 
-To toggle the board's built-in LED:
+To test if the board receives commands correctly, it's recommended to first try toggling the board's built-in LED with the following command:
 
     LED
 
-To control the servo motor, the following commands are available:
+To control the servo motors position, or LED brightness, the following commands are available:
 
-    PWM <duty_cycle>
-    PWM -p <percentage>
+    PWM <actuator-id> <duty_cycle>
+    PWM <actuator-id> -p <percentage>
 
-For example, to set the servo motor to a 90° position using a percentage:
+For example, to set the third servo motor to a 90° position using a percentage:
 
-    PWM -p 50
+    PWM 3 -p 50
 
 Alternatively, to set it to a 45° position using a duty cycle value:
 
-    PWM 5
+    PWM 3 5
 
 Since the servo motor requires a pulse width between **_1ms and 2ms_** to work as expected, the duty cycle should be between **_5% and 10%_**.
 
