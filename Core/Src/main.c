@@ -30,12 +30,14 @@ static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 void Parse_Command(void);
+void SelectDeMuxChannel(uint8_t);
 float clamp(float, float, float);
 float map(float, float, float, float, float);
 
 /**
- * @brief The application entry point
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void) {
   HAL_Init();
   SystemClock_Config();
@@ -56,13 +58,17 @@ int main(void) {
 }
 
 /**
- * @brief System Clock Configuration and Initialization
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
@@ -75,6 +81,8 @@ void SystemClock_Config(void) {
     Error_Handler();
   }
 
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
@@ -98,10 +106,10 @@ void SystemClock_Config(void) {
 }
 
 /**
- * @brief TIM3 Initialization Function
- * 
- * @note This function initializes the TIM3 peripheral to generate a PWM signal.
- */
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM3_Init(void) {
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
@@ -134,14 +142,13 @@ static void MX_TIM3_Init(void) {
   }
 
   HAL_TIM_MspPostInit(&htim3);
-
 }
 
 /**
- * @brief USART2 Initialization Function
- * 
- * @note This function initializes the USART2 peripheral to communicate with the terminal.
- */
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART2_UART_Init(void) {
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 9600;
@@ -160,11 +167,10 @@ static void MX_USART2_UART_Init(void) {
 }
 
 /**
- * @brief USART3 Initialization Function
- * 
- * @note This function initializes the USART3 peripheral to communicate with HC-06
- *       Bluetooth module.
- */
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART3_UART_Init(void) {
   huart3.Instance = USART3;
   huart3.Init.BaudRate = 9600;
@@ -183,8 +189,10 @@ static void MX_USART3_UART_Init(void) {
 }
 
 /**
- * @brief GPIO Initialization Function
- */
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_GPIO_Init(void) {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -193,27 +201,47 @@ static void MX_GPIO_Init(void) {
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, DMUX_A_Pin|DMUX_B_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(DMUX_C_GPIO_Port, DMUX_C_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : DMUX_A_Pin DMUX_B_Pin */
+  GPIO_InitStruct.Pin = DMUX_A_Pin|DMUX_B_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : LD2_Pin */
   GPIO_InitStruct.Pin = LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : DMUX_C_Pin */
+  GPIO_InitStruct.Pin = DMUX_C_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(DMUX_C_GPIO_Port, &GPIO_InitStruct);
 }
 
 /**
  * @brief Enables the UART interrupt to receive text from the terminal.
- * 
  * @param huart UART handle
- * 
  * @retval None
- * 
  * @note The expected UART instance is USART2, which corresponds to the USB virtual COM port
  *       from the Nucleo board.
  */
@@ -292,12 +320,41 @@ void Parse_Command(void) {
       dutyCycle = clamp(dutyCycle, DUTY_CYCLE_LOWER_BOUND, DUTY_CYCLE_UPPER_BOUND);
     }
 
+    // Select the DeMux output channel
+    SelectDeMuxChannel((uint8_t) atoi(id));
+
     // Calculate the pulse width and set the duty cycle of the signal
     uint8_t pulse = (uint8_t)((dutyCycle / 100.0) * 255);
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, pulse);
   }
 
   memset(rxBuffer, 0, sizeof(rxBuffer));
+}
+
+/**
+ * @brief Selects the output channel of the DeMux.
+ * 
+ * Sets the appropriate pin values to pass a signal through the desired channel, which can 
+ * be 1 out 8 channels
+ * 
+ * @param channel Channel to be selected
+ * @retval None
+ * 
+ * @note The function maps the channel number to zero-index representation internally
+ */
+void SelectDeMuxChannel(uint8_t channel) {
+  // Decrease in 1 to map to zero-index representation
+  channel--;
+
+  // Calculate the state for each pin
+  uint8_t A = (channel & 0x01); // bit 0
+  uint8_t B = (channel & 0x02) >> 1; // bit 1
+  uint8_t C = (channel & 0x04) >> 2; // bit 2
+
+  // Set each pin state
+  HAL_GPIO_WritePin(DMUX_A_GPIO_Port, DMUX_A_Pin, A ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DMUX_B_GPIO_Port, DMUX_B_Pin, B ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DMUX_C_GPIO_Port, DMUX_C_Pin, C ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 /**
@@ -334,6 +391,10 @@ float map(float value, float fromLower, float fromUpper, float toLower, float to
   return (value - fromLower) * (toUpper - toLower) / (fromUpper - fromLower) + toLower;
 }
 
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void) {
   __disable_irq();
   while (1);
