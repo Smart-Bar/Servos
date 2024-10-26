@@ -3,14 +3,21 @@
 #include <string.h>
 #include <stdlib.h>
 
+// Length of the command parameters
 #define PARAM_LENGTH            8
+
+// LEngth of the circular buffer
 #define CMD_VCTR_SIZE           4
+
 // Minimum duty cycle for the servo motor (2.5% or 0°)
 #define DUTY_CYCLE_LOWER_BOUND  2.5
+
 // Maximum duty cycle for the servo motor (12.5% or 180°)
 #define DUTY_CYCLE_UPPER_BOUND  12.5
+
 // Minimum pulse width for the servo motor
 #define MIN_PULSE_WIDTH         6.375
+
 // Maximum pulse width for the servo motor
 #define MAX_PULSE_WIDTH         31.875
 
@@ -276,7 +283,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 /**
- * @brief Handles the command received from the terminal.
+ * @brief Parses the received command and stores it in the command vector.
+ * 
+ * The command is stored in a array where each element is a parameter of the command.
+ * The function parses the command and stores it in the vector, then executes the command.
+ * 
+ * @retval None
  */
 void ParseCommand(void) {
   // Parse the command to get its parameters
