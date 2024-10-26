@@ -29,7 +29,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
-void Parse_Command(void);
+void ParseCommand(void);
 void SelectDeMuxChannel(uint8_t);
 float clamp(float, float, float);
 float map(float, float, float, float, float);
@@ -266,7 +266,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   if (rxChar[0] == 13) {
     rxIdx = 0;
     // Handle the command
-    Parse_Command();
+    ParseCommand();
     HAL_UART_Transmit(&huart2, (uint8_t*)"\n\r", 2, 100);
     memset(rxChar, 0, sizeof(rxChar));
   }
@@ -278,7 +278,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 /**
  * @brief Handles the command received from the terminal.
  */
-void Parse_Command(void) {
+void ParseCommand(void) {
   // Parse the command to get its parameters
   char *input = (char*) rxBuffer;
   char *charPointer = strtok(input, " ");
