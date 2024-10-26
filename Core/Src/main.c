@@ -1,4 +1,10 @@
 
+/**
+ * @file            main.c
+ * @author          Erick Daniel Ortiz Cervantes
+ * @brief           Servo motor control using a PWM signal
+ */
+
 #include "main.h"
 #include <string.h>
 #include <stdlib.h>
@@ -376,7 +382,7 @@ void SelectDeMuxChannel(uint8_t channel) {
  * @param lowerBound Lower bound
  * @param upperBound Upper bound
  * 
- * @retval Clamped value
+ * @retval clampedValue
  */
 float clamp(float input, float lowerBound, float upperBound) {
   return input < lowerBound
@@ -395,7 +401,7 @@ float clamp(float input, float lowerBound, float upperBound) {
  * @param toLower Lower bound of the output range
  * @param toUpper Upper bound of the output range
  * 
- * @retval Mapped value
+ * @retval mappedValue
  * 
  * @ref https://docs.arduino.cc/language-reference/en/functions/math/map/
  */
