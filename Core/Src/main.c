@@ -43,7 +43,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 void ParseCommand(void);
-void SelectDeMuxChannel(uint8_t);
+void SelectOutputChannel(uint8_t);
 float clamp(float, float, float);
 float map(float, float, float, float, float);
 
@@ -339,7 +339,7 @@ void ParseCommand(void) {
     }
 
     // Select the DeMux output channel
-    SelectDeMuxChannel((uint8_t) atoi(id));
+    SelectOutputChannel((uint8_t) atoi(id));
 
     // Calculate the pulse width and set the duty cycle of the signal
     uint8_t pulse = (uint8_t)((dutyCycle / 100.0) * 255);
@@ -360,7 +360,7 @@ void ParseCommand(void) {
  * 
  * @note The function maps the channel number to zero-index representation internally
  */
-void SelectDeMuxChannel(uint8_t channel) {
+void SelectOutputChannel(uint8_t channel) {
   // Decrease in 1 to map to zero-index representation
   channel--;
 
